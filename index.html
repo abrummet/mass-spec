@@ -1,0 +1,795 @@
+<meta charset="utf-8">
+<title>Mass Spectrum Figures</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: one-screen lab tool — controls column on the left, a sheet of "paper" on the right showing the print-ready figure. */
+:root {
+  --bg: #e9edf1;
+  --panel: #f8fafb;
+  --ink: #18212c;
+  --muted: #5a6676;
+  --line: #d3d9e0;
+  --accent: #2c5a86;
+  --accent-ink: #ffffff;
+  --accent-soft: #dfe8f2;
+  --warn: #9a5b00;
+  --paper: #ffffff;
+  --paper-edge: rgba(24, 33, 44, .12);
+  --ui: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #11151a; --panel: #192028; --ink: #e4e9ee; --muted: #98a4b2; --line: #2b3440;
+    --accent: #79a9d8; --accent-ink: #0d1620; --accent-soft: #223142; --warn: #e0a346;
+    --paper-edge: rgba(0, 0, 0, .5); color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #11151a; --panel: #192028; --ink: #e4e9ee; --muted: #98a4b2; --line: #2b3440;
+  --accent: #79a9d8; --accent-ink: #0d1620; --accent-soft: #223142; --warn: #e0a346;
+  --paper-edge: rgba(0, 0, 0, .5); color-scheme: dark;
+}
+html, body { height: 100%; }
+body { background: var(--bg); color: var(--ink); font-family: var(--ui); font-size: 13.5px; }
+* { box-sizing: border-box; }
+
+.app { height: 100%; display: grid; grid-template-rows: auto 1fr; }
+header {
+  display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+  padding-block: 10px; padding-left: max(18px, env(safe-area-inset-left, 0px)); padding-right: max(18px, env(safe-area-inset-right, 0px));
+  border-bottom: 1px solid var(--line); background: var(--panel);
+}
+.brand { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.brand h1 { margin: 0; font-size: 17px; font-weight: 600; letter-spacing: -.01em; }
+.brand h1 i { font-style: italic; font-weight: 500; color: var(--accent); }
+.brand p { margin: 0; color: var(--muted); font-size: 12.5px; }
+.chips { display: flex; gap: 6px; flex-wrap: wrap; }
+.chip { font-family: var(--mono); font-size: 12px; padding: 3px 9px; border-radius: 999px; background: var(--accent-soft); color: var(--ink); white-space: nowrap; }
+.chip b { font-weight: 500; color: var(--accent); }
+.chip.warn { background: transparent; border: 1px solid var(--warn); color: var(--warn); }
+
+main { min-height: 0; display: grid; grid-template-columns: 330px 1fr; }
+aside {
+  min-height: 0; overflow-y: auto; border-right: 1px solid var(--line); background: var(--panel);
+  padding-block: 14px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: 16px;
+  display: flex; flex-direction: column; gap: 16px;
+}
+section { display: flex; flex-direction: column; gap: 8px; }
+.sec-title { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin: 0; }
+textarea {
+  width: 100%; height: 150px; resize: vertical; font-family: var(--mono); font-size: 12px; line-height: 1.45;
+  padding: 8px 10px; border: 1px solid var(--line); border-radius: 6px; background: var(--bg); color: var(--ink);
+}
+.row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.row > label { flex: 1; min-width: 0; }
+.field { display: flex; flex-direction: column; gap: 3px; font-size: 12px; color: var(--muted); }
+.field input, .field select, select, input[type=number], input[type=text] {
+  font: inherit; font-size: 13px; color: var(--ink); background: var(--bg); border: 1px solid var(--line);
+  border-radius: 5px; padding: 5px 7px; width: 100%; min-width: 0;
+}
+.check { display: flex; align-items: center; gap: 7px; font-size: 13px; color: var(--ink); cursor: pointer; }
+.check input { accent-color: var(--accent); width: 15px; height: 15px; margin: 0; }
+.inline-num { width: 64px !important; }
+.note { font-size: 12px; color: var(--muted); margin: 0; line-height: 1.4; }
+.note.warn { color: var(--warn); }
+
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; width: 100%; }
+.seg button { flex: 1; font: inherit; font-size: 12.5px; padding: 6px 4px; border: 0; background: var(--bg); color: var(--ink); cursor: pointer; }
+.seg button + button { border-left: 1px solid var(--line); }
+.seg button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
+
+.btn {
+  font: inherit; font-size: 13px; padding: 6px 12px; border-radius: 6px; cursor: pointer;
+  border: 1px solid var(--line); background: var(--panel); color: var(--ink); white-space: nowrap;
+}
+.btn:hover { border-color: var(--accent); }
+.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 500; }
+.btn.small { font-size: 12px; padding: 4px 9px; }
+button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+.work { min-width: 0; min-height: 0; display: grid; grid-template-rows: auto 1fr auto; gap: 10px;
+  padding-block: 14px; padding-left: 20px; padding-right: max(20px, env(safe-area-inset-right, 0px)); }
+.toolbar { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+.hint { color: var(--muted); font-size: 12.5px; }
+.hint kbd { font-family: var(--ui); font-size: 11.5px; border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 4px; padding: 0 5px; background: var(--panel); color: var(--ink); }
+.actions { display: flex; gap: 6px; flex-wrap: wrap; }
+.stage { position: relative; min-height: 0; display: flex; align-items: center; justify-content: center; }
+.sheet { background: var(--paper); box-shadow: 0 1px 2px var(--paper-edge), 0 8px 28px var(--paper-edge); border-radius: 3px;
+  padding: 2.2%; width: 100%; max-width: 1100px; max-height: 100%; display: flex; }
+.stage[data-size="half"] .sheet { max-width: 640px; }
+.sheet svg { width: 100%; height: auto; max-height: calc(100vh - 210px); display: block; }
+.sheet svg [data-key] { cursor: pointer; }
+.sheet svg .pk.hot line, .sheet svg .lb.hot text { stroke: #2c5a86; fill: #2c5a86; }
+.sheet svg .lb.hot text { stroke: none; }
+.sheet svg .pk.hot line { stroke-width: 2.2; }
+.foot { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; font-size: 12px; color: var(--muted); }
+.readout { font-family: var(--mono); color: var(--ink); min-height: 1.2em; }
+
+.editor {
+  position: absolute; z-index: 5; background: var(--panel); border: 1px solid var(--accent); border-radius: 7px;
+  padding: 8px; box-shadow: 0 6px 22px var(--paper-edge); display: flex; flex-direction: column; gap: 5px; width: 230px;
+}
+.editor input { font-family: var(--mono); }
+.editor .note { font-size: 11px; }
+
+.modal { position: fixed; inset: 0; z-index: 20; background: rgba(10, 14, 20, .55); display: flex; align-items: center; justify-content: center; padding: 20px; }
+.modal-card { background: var(--panel); border-radius: 10px; padding: 16px; max-width: min(900px, 100%); max-height: 100%; overflow: auto; display: flex; flex-direction: column; gap: 10px; }
+.modal-card h2 { margin: 0; font-size: 15px; font-weight: 600; }
+.modal-card img { background: #fff; border: 1px solid var(--line); max-width: 100%; height: auto; }
+.toast { position: fixed; bottom: calc(18px + env(safe-area-inset-bottom, 0px)); left: 50%; transform: translateX(-50%); background: var(--ink); color: var(--bg); padding: 8px 14px; border-radius: 6px; font-size: 13px; z-index: 30; }
+
+@media (max-width: 820px) {
+  html, body { height: auto; }
+  .app { height: auto; }
+  main { grid-template-columns: 1fr; }
+  aside { border-right: 0; border-bottom: 1px solid var(--line); overflow: visible; padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+  .work { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+  .sheet svg { max-height: none; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div class="app">
+  <header>
+    <div class="brand">
+      <h1>Mass Spectrum <i>Figures</i></h1>
+      <p>Paste an SDBS peak list and get a clean, print-ready spectrum.</p>
+    </div>
+    <div class="chips" id="chips"></div>
+  </header>
+
+  <main>
+    <aside>
+      <section>
+        <h2 class="sec-title">Peak list</h2>
+        <textarea id="data" spellcheck="false" placeholder="Paste m/z and intensity pairs from SDBS here"></textarea>
+        <div class="row">
+          <button class="btn small" id="example" type="button">Load example</button>
+          <button class="btn small" id="clear" type="button">Clear</button>
+          <span class="note" id="parseNote"></span>
+        </div>
+      </section>
+
+      <section>
+        <h2 class="sec-title">Labels</h2>
+        <div class="row">
+          <label class="field">Label the top
+            <input type="number" id="topN" min="0" max="20" step="1"></label>
+          <label class="field">peaks at or above (%)
+            <input type="number" id="minPct" min="0" max="100" step="1"></label>
+        </div>
+        <label class="check"><input type="checkbox" id="labelM"> Always label the molecular ion (M⁺)</label>
+        <div class="row">
+          <label class="field">M⁺ at m/z
+            <input type="number" id="mOverride" min="1" step="1" placeholder="auto"></label>
+          <label class="field">M⁺ label style
+            <select id="mStyle">
+              <option value="num">165</option>
+              <option value="pre">M⁺ 165</option>
+              <option value="post">165 (M⁺)</option>
+            </select></label>
+        </div>
+        <p class="note" id="mNote"></p>
+      </section>
+
+      <section>
+        <h2 class="sec-title">Display</h2>
+        <div class="row">
+          <label class="check"><input type="checkbox" id="noise"> Hide peaks below</label>
+          <input type="number" id="noiseT" class="inline-num" min="0" max="50" step="0.5" aria-label="Noise threshold in percent">
+          <span class="note">%</span>
+        </div>
+        <div class="field">Figure size
+          <div class="seg" id="sizeSeg">
+            <button type="button" data-v="full">Full width · 6.5 in</button>
+            <button type="button" data-v="half">Half width · 3.2 in</button>
+          </div>
+        </div>
+        <div class="field">Text size
+          <div class="seg" id="textSeg">
+            <button type="button" data-v="s">Smaller</button>
+            <button type="button" data-v="m">Standard</button>
+            <button type="button" data-v="l">Larger</button>
+          </div>
+        </div>
+        <div class="row">
+          <label class="field">m/z from
+            <input type="number" id="xmin" min="0" step="5" placeholder="auto"></label>
+          <label class="field">to
+            <input type="number" id="xmax" min="1" step="5" placeholder="auto"></label>
+        </div>
+        <label class="field">Y-axis title
+          <select id="yTitle">
+            <option value="Relative Intensity (%)">Relative Intensity (%)</option>
+            <option value="Relative Abundance (%)">Relative Abundance (%)</option>
+          </select></label>
+      </section>
+    </aside>
+
+    <div class="work">
+      <div class="toolbar">
+        <span class="hint"><kbd>Click</kbd> a peak to show or hide its label · <kbd>Double-click</kbd> to edit the label text</span>
+        <div class="actions">
+          <button class="btn" id="reset" type="button">Reset labels</button>
+          <button class="btn primary" id="copy" type="button">Copy image</button>
+          <button class="btn" id="savePng" type="button">Save PNG</button>
+          <button class="btn" id="saveSvg" type="button">Save SVG</button>
+        </div>
+      </div>
+      <div class="stage" id="stage"><div class="sheet" id="sheet"></div></div>
+      <div class="foot">
+        <span class="readout" id="readout"></span>
+        <span id="sizeNote"></span>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+const EXAMPLE = `18.0	5.8
+27.0	1.0
+28.0	10.7
+29.0	1.0
+30.0	2.6
+39.0	3.9
+41.0	1.6
+42.0	2.8
+43.0	1.8
+46.0	5.0
+50.0	1.3
+51.0	3.6
+58.5	1.3
+59.5	1.7
+60.0	3.0
+63.0	2.1
+65.0	8.6
+74.0	100.0
+75.0	3.0
+77.0	5.5
+78.0	1.3
+89.0	1.7
+90.0	1.2
+91.0	44.4
+92.0	16.3
+93.0	3.1
+103.0	7.2
+104.0	2.4
+117.0	1.2
+118.0	3.2
+119.0	3.0
+120.0	56.2
+121.0	5.3
+165.0	2.1`;
+
+const FONT = 'Arial, Helvetica, "Liberation Sans", sans-serif';
+const DPI = 300;
+const STORE = 'msfig-v1';
+const $ = id => document.getElementById(id);
+
+const state = {
+  text: EXAMPLE,
+  peaks: [],
+  skipped: 0,
+  overrides: {},   // key -> {on?: boolean, text?: string}
+  s: { topN: 5, minPct: 10, labelM: true, mOverride: '', mStyle: 'num', noise: false, noiseT: 2,
+       size: 'full', text: 'm', xmin: '', xmax: '', yTitle: 'Relative Intensity (%)' }
+};
+
+try {
+  const saved = JSON.parse(localStorage.getItem(STORE) || 'null');
+  if (saved) {
+    if (typeof saved.text === 'string') state.text = saved.text;
+    Object.assign(state.s, saved.s || {});
+    state.overrides = saved.overrides || {};
+  }
+} catch (e) {}
+function persist() {
+  try { localStorage.setItem(STORE, JSON.stringify({ text: state.text, s: state.s, overrides: state.overrides })); } catch (e) {}
+}
+
+/* ---------- parsing ---------- */
+const keyOf = mz => mz.toFixed(1);
+const fmt = mz => Math.abs(mz - Math.round(mz)) < 0.05 ? String(Math.round(mz)) : mz.toFixed(1);
+
+function parse(text) {
+  const map = new Map();
+  let skipped = 0;
+  for (const line of text.split(/\r?\n/)) {
+    const nums = (line.match(/\d+(?:\.\d+)?|\.\d+/g) || []).map(Number);
+    if (!nums.length) continue;
+    if (nums.length % 2) { skipped++; continue; }
+    for (let i = 0; i < nums.length; i += 2) {
+      const mz = nums[i], I = nums[i + 1];
+      if (!(mz > 0) || !(I >= 0) || !isFinite(mz) || !isFinite(I)) continue;
+      const k = keyOf(mz);
+      if (!map.has(k) || map.get(k).raw < I) map.set(k, { mz: Math.round(mz * 10) / 10, raw: I, key: k });
+    }
+  }
+  const peaks = [...map.values()].sort((a, b) => a.mz - b.mz);
+  const max = Math.max(0, ...peaks.map(p => p.raw));
+  peaks.forEach(p => p.rel = max > 0 ? p.raw / max * 100 : 0);
+  return { peaks: peaks.filter(p => p.rel > 0), skipped };
+}
+
+const peakAt = (list, mz) => list.find(p => Math.abs(p.mz - mz) < 0.05);
+
+// Highest integer-mass peak above a small floor, stepped back past 13C (M+1) and Cl/Br (M+2) isotope peaks.
+function detectM(peaks) {
+  const cands = peaks.filter(p => p.rel >= 0.5 && Math.abs(p.mz - Math.round(p.mz)) < 0.05);
+  if (!cands.length) return null;
+  let m = cands[cands.length - 1];
+  for (let guard = 0; guard < 8; guard++) {
+    const p1 = peakAt(peaks, m.mz - 1), p2 = peakAt(peaks, m.mz - 2);
+    if (p1 && m.rel <= 0.3 * p1.rel) { m = p1; continue; }
+    if (p2 && (!p1 || p1.rel < m.rel) && m.rel >= 0.1 * p2.rel && m.rel <= 1.15 * p2.rel) { m = p2; continue; }
+    break;
+  }
+  return m;
+}
+
+/* ---------- derived view ---------- */
+function getM() {
+  const o = parseFloat(state.s.mOverride);
+  if (o > 0) return { peak: peakAt(state.peaks, o) || null, manual: true, value: o };
+  return { peak: detectM(state.peaks), manual: false };
+}
+
+function shownPeaks(M) {
+  const s = state.s;
+  let list = state.peaks;
+  if (s.noise) list = list.filter(p => p.rel >= s.noiseT || (M && p.key === M.key));
+  return list;
+}
+
+function autoSet(shown, M) {
+  const s = state.s, set = new Set();
+  const sorted = shown.filter(p => p.rel >= s.minPct).sort((a, b) => b.rel - a.rel);
+  let n = 0;
+  for (const p of sorted) {
+    if (n >= s.topN) break;
+    const prev = peakAt(shown, p.mz - 1);
+    if (prev && p.rel < 0.5 * prev.rel) continue;  // likely an M+1 isotope of the peak beside it
+    set.add(p.key); n++;
+  }
+  if (s.labelM && M) set.add(M.key);
+  return set;
+}
+
+function defaultText(p, M) {
+  const n = fmt(p.mz);
+  if (M && p.key === M.key) {
+    if (state.s.mStyle === 'pre') return 'M^+ ' + n;
+    if (state.s.mStyle === 'post') return n + ' (M^+)';
+  }
+  return n;
+}
+
+/* ---------- rich text: _x / _{xy} subscript, ^x / ^{xy} superscript ---------- */
+function richParts(str) {
+  const parts = [];
+  let i = 0;
+  while (i < str.length) {
+    const c = str[i];
+    if ((c === '^' || c === '_') && i + 1 < str.length) {
+      let t;
+      if (str[i + 1] === '{') {
+        const j = str.indexOf('}', i + 2);
+        if (j < 0) { t = str.slice(i + 2); i = str.length; } else { t = str.slice(i + 2, j); i = j + 1; }
+      } else { t = str[i + 1]; i += 2; }
+      if (t) parts.push({ t, k: c });
+    } else {
+      let j = i;
+      while (j < str.length && str[j] !== '^' && str[j] !== '_') j++;
+      if (j === i) j++;
+      parts.push({ t: str.slice(i, j), k: '' });
+      i = j;
+    }
+  }
+  return parts;
+}
+const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+const mctx = document.createElement('canvas').getContext('2d');
+function tw(str, size, italic) { mctx.font = `${italic ? 'italic ' : ''}${size}px ${FONT}`; return mctx.measureText(str).width; }
+
+function richMeasure(str, size) {
+  const parts = richParts(str);
+  let w = 0, sup = false, sub = false;
+  for (const p of parts) {
+    w += tw(p.t, p.k ? size * 0.7 : size);
+    if (p.k === '^') sup = true;
+    if (p.k === '_') sub = true;
+  }
+  return { parts, w, sup, sub };
+}
+function richTspans(parts, size) {
+  let off = 0, out = '';
+  for (const p of parts) {
+    const target = p.k === '^' ? -0.38 * size : p.k === '_' ? 0.22 * size : 0;
+    const dy = target - off; off = target;
+    const fs = p.k ? ` font-size="${(size * 0.7).toFixed(2)}"` : '';
+    out += `<tspan${dy ? ` dy="${dy.toFixed(2)}"` : ''}${fs}>${esc(p.t)}</tspan>`;
+  }
+  return out;
+}
+
+/* ---------- figure ---------- */
+function niceStep(span, maxTicks) {
+  const steps = [1, 2, 5, 10, 20, 25, 50, 100, 200, 250, 500];
+  return steps.find(s => span / s <= maxTicks) || 1000;
+}
+const MINOR = { 1: 0, 2: 1, 5: 1, 10: 5, 20: 10, 25: 5, 50: 10, 100: 50, 200: 100, 250: 50, 500: 100, 1000: 500 };
+
+function build(interactive) {
+  const s = state.s;
+  const k = { s: 0.9, m: 1, l: 1.15 }[s.text] || 1;
+  const D = s.size === 'half'
+    ? { W: 230, H: 172, tick: 8.5, axis: 9.5, label: 8.5, peak: 1.0, axisW: 0.8 }
+    : { W: 468, H: 234, tick: 10, axis: 11, label: 9.5, peak: 1.25, axisW: 0.9 };
+  const tick = D.tick * k, axis = D.axis * k, lab = D.label * k;
+  const { W, H } = D;
+  const tl = 4;  // major tick length
+
+  const Mi = getM(), M = Mi.peak;
+  const shown = shownPeaks(M);
+  const auto = autoSet(shown, M);
+
+  // margins (pt)
+  const yTitleX = 2 + axis * 0.8;
+  const ml = yTitleX + axis * 0.35 + 5 + tw('100', tick) + 3 + tl;
+  const mr = 9;
+  const mt = lab * 1.35 + 6;
+  const xLabY = tl + 2 + tick * 0.78;
+  const mb = xLabY + axis * 0.5 + axis * 1.05 + 3;
+  const x0 = ml, x1 = W - mr, y0 = H - mb, yTop = mt;
+  const plotW = x1 - x0, plotH = y0 - yTop;
+
+  // x range
+  const mzs = shown.map(p => p.mz);
+  const dmin = mzs.length ? Math.min(...mzs) : 0, dmax = mzs.length ? Math.max(...mzs) : 100;
+  const uMin = parseFloat(s.xmin), uMax = parseFloat(s.xmax);
+  const maxTicks = Math.max(3, Math.floor(plotW / (tw('000', tick) + 16)));
+  let lo = isFinite(uMin) ? uMin : Math.max(0, dmin - 4);
+  let hi = isFinite(uMax) ? uMax : dmax + 4;
+  if (hi <= lo) hi = lo + 10;
+  const step = niceStep(hi - lo, maxTicks);
+  const snap = MINOR[step] || step;
+  if (!isFinite(uMin)) lo = Math.max(0, Math.floor(lo / snap) * snap);
+  if (!isFinite(uMax)) hi = Math.ceil(hi / snap) * snap;
+  const X = mz => x0 + (mz - lo) / (hi - lo) * plotW;
+  const Y = r => y0 - r / 100 * plotH;
+  const vis = shown.filter(p => p.mz >= lo && p.mz <= hi);
+
+  let g = '';
+  const ink = '#000';
+  g += `<rect x="0" y="0" width="${W}" height="${H}" fill="#fff"/>`;
+
+  // axes
+  g += `<g stroke="${ink}" stroke-width="${D.axisW}" fill="none" stroke-linecap="square">`;
+  g += `<line x1="${x0}" y1="${y0}" x2="${x1}" y2="${y0}"/><line x1="${x0}" y1="${y0}" x2="${x0}" y2="${yTop}"/>`;
+  const minor = MINOR[step] || 0;
+  for (let v = Math.ceil(lo / step) * step; v <= hi + 1e-9; v += step) g += `<line x1="${X(v)}" y1="${y0}" x2="${X(v)}" y2="${y0 + tl}"/>`;
+  if (minor) for (let v = Math.ceil(lo / minor) * minor; v <= hi + 1e-9; v += minor) {
+    if (Math.abs(v / step - Math.round(v / step)) < 1e-6) continue;
+    g += `<line x1="${X(v)}" y1="${y0}" x2="${X(v)}" y2="${y0 + tl * 0.55}"/>`;
+  }
+  for (let r = 0; r <= 100; r += 20) g += `<line x1="${x0 - tl}" y1="${Y(r)}" x2="${x0}" y2="${Y(r)}"/>`;
+  for (let r = 10; r < 100; r += 20) g += `<line x1="${x0 - tl * 0.55}" y1="${Y(r)}" x2="${x0}" y2="${Y(r)}"/>`;
+  g += `</g>`;
+
+  // tick labels + titles
+  g += `<g fill="${ink}" font-family='${FONT}' font-size="${tick}">`;
+  for (let v = Math.ceil(lo / step) * step; v <= hi + 1e-9; v += step)
+    g += `<text x="${X(v)}" y="${y0 + xLabY}" text-anchor="middle">${fmt(v)}</text>`;
+  for (let r = 0; r <= 100; r += 20)
+    g += `<text x="${x0 - tl - 3}" y="${Y(r) + tick * 0.35}" text-anchor="end">${r}</text>`;
+  g += `</g>`;
+  const xTitleY = y0 + xLabY + axis * 0.5 + axis * 0.85;
+  g += `<text x="${x0 + plotW / 2}" y="${xTitleY}" text-anchor="middle" font-family='${FONT}' font-size="${axis}" font-style="italic" fill="${ink}">m/z</text>`;
+  let yt = s.yTitle;
+  if (tw(yt, axis) > plotH * 1.02) yt = yt.replace('Relative', 'Rel.');
+  g += `<text transform="translate(${yTitleX} ${yTop + plotH / 2}) rotate(-90)" text-anchor="middle" font-family='${FONT}' font-size="${axis}" fill="${ink}">${esc(yt)}</text>`;
+
+  // peaks
+  g += `<g stroke="${ink}" stroke-width="${D.peak}" stroke-linecap="butt">`;
+  for (const p of vis) {
+    const x = X(p.mz).toFixed(2);
+    g += `<g class="pk" data-pk="${p.key}"><line x1="${x}" y1="${y0}" x2="${x}" y2="${Y(p.rel).toFixed(2)}"/></g>`;
+  }
+  g += `</g>`;
+
+  // labels with collision avoidance
+  const isOn = p => { const o = state.overrides[p.key]; return o && typeof o.on === 'boolean' ? o.on : auto.has(p.key); };
+  const labeled = vis.filter(isOn).sort((a, b) => b.rel - a.rel);
+  const obstacles = vis.map(p => ({ key: p.key, x0: X(p.mz) - D.peak, x1: X(p.mz) + D.peak, y0: Y(p.rel), y1: y0 }));
+  const placed = [];
+  const pad = 1.6, gap = 2.6;
+  const hit = (b, list) => list.some(o => b.x0 < o.x1 && b.x1 > o.x0 && b.y0 < o.y1 && b.y1 > o.y0);
+  let lg = '', leaders = '';
+  for (const p of labeled) {
+    const o = state.overrides[p.key];
+    const txt = (o && o.text) || defaultText(p, M);
+    const m = richMeasure(txt, lab);
+    const asc = lab * 0.74 + (m.sup ? lab * 0.3 : 0), desc = m.sub ? lab * 0.32 : lab * 0.04;
+    const px = X(p.mz), top = Y(p.rel);
+    const baseY = top - gap - desc;
+    const stepY = lab * 0.6;
+    const cands = [];
+    for (let r = 0; r <= 24; r++) for (const f of [0, 0.3, -0.3, 0.6, -0.6, 0.9, -0.9])
+      cands.push({ dy: r * stepY, dx: f * m.w, cost: r * stepY + Math.abs(f * m.w) * 1.6 + (r && !f ? 0 : 0) });
+    cands.sort((a, b) => a.cost - b.cost);
+    const others = obstacles.filter(ob => ob.key !== p.key);
+    let best = null;
+    for (const c of cands) {
+      const cx = px + c.dx, by = baseY - c.dy;
+      const b = { x0: cx - m.w / 2 - pad, x1: cx + m.w / 2 + pad, y0: by - asc - pad, y1: by + desc + pad };
+      if (b.y0 < 0.5 || b.x0 < x0 - 2 || b.x1 > W - 0.5) continue;
+      if (hit(b, placed) || hit(b, others)) continue;
+      best = { cx, by, b, c }; break;
+    }
+    if (!best) {
+      const cx = Math.min(Math.max(px, x0 + m.w / 2), W - m.w / 2 - 1);
+      best = { cx, by: baseY, b: { x0: cx - m.w / 2 - pad, x1: cx + m.w / 2 + pad, y0: baseY - asc - pad, y1: baseY + desc + pad }, c: { dy: 0, dx: 0 } };
+    }
+    placed.push(best.b);
+    if (best.c.dy > 0.1 || Math.abs(best.c.dx) > m.w * 0.45) {
+      const ly = best.by + desc + 1.2;
+      const lx = Math.min(Math.max(px, best.cx - m.w / 2), best.cx + m.w / 2);
+      leaders += `<line x1="${px.toFixed(2)}" y1="${(top - 1.2).toFixed(2)}" x2="${lx.toFixed(2)}" y2="${ly.toFixed(2)}"/>`;
+    }
+    lg += `<g class="lb" data-lb="${p.key}"${interactive ? ` data-key="${p.key}"` : ''}><text x="${best.cx.toFixed(2)}" y="${best.by.toFixed(2)}" text-anchor="middle">${richTspans(m.parts, lab)}</text></g>`;
+  }
+  if (leaders) g += `<g stroke="#444" stroke-width="0.5" fill="none">${leaders}</g>`;
+  g += `<g font-family='${FONT}' font-size="${lab}" fill="${ink}">${lg}</g>`;
+
+  // hit areas (preview only)
+  if (interactive) {
+    g += `<g fill="#000" fill-opacity="0">`;
+    vis.forEach((p, i) => {
+      const x = X(p.mz);
+      const l = i ? (x - X(vis[i - 1].mz)) / 2 : 4, r = i < vis.length - 1 ? (X(vis[i + 1].mz) - x) / 2 : 4;
+      const hl = Math.max(1.2, Math.min(4, l)), hr = Math.max(1.2, Math.min(4, r));
+      g += `<rect data-key="${p.key}" x="${(x - hl).toFixed(2)}" y="${yTop - 4}" width="${(hl + hr).toFixed(2)}" height="${(y0 - yTop + 8).toFixed(2)}"/>`;
+    });
+    g += `</g>`;
+  }
+
+  const attrs = interactive ? `viewBox="0 0 ${W} ${H}"` : `viewBox="0 0 ${W} ${H}" width="${W / 72}in" height="${H / 72}in"`;
+  return { svg: `<svg xmlns="http://www.w3.org/2000/svg" ${attrs} role="img" aria-label="Mass spectrum">${g}</svg>`, W, H, M, Mi, shown, auto, isOn };
+}
+
+/* ---------- render ---------- */
+let last = null;
+function render() {
+  const r = build(true);
+  last = r;
+  $('sheet').innerHTML = r.svg;
+  $('stage').dataset.size = state.s.size;
+
+  const chips = [];
+  if (state.peaks.length) {
+    const base = state.peaks.reduce((a, b) => b.rel > a.rel ? b : a);
+    chips.push(`<span class="chip"><b>${state.peaks.length}</b> peaks</span>`);
+    chips.push(`<span class="chip">base peak <b>${fmt(base.mz)}</b></span>`);
+    if (r.M) chips.push(`<span class="chip">M⁺ <b>${fmt(r.M.mz)}</b>${r.Mi.manual ? ' (set)' : ''}</span>`);
+    else if (r.Mi.manual) chips.push(`<span class="chip warn">no peak at m/z ${esc(state.s.mOverride)}</span>`);
+  } else chips.push(`<span class="chip warn">no peaks read yet</span>`);
+  $('chips').innerHTML = chips.join('');
+
+  $('parseNote').textContent = state.skipped ? `${state.skipped} line${state.skipped > 1 ? 's' : ''} skipped (odd number of values)` : '';
+  $('parseNote').className = 'note' + (state.skipped ? ' warn' : '');
+  const auto = detectM(state.peaks);
+  $('mOverride').placeholder = auto ? `auto (${fmt(auto.mz)})` : 'auto';
+  $('mNote').textContent = r.Mi.manual && !r.M ? `There is no peak at m/z ${state.s.mOverride} in the pasted data.` : '';
+  $('mNote').className = 'note' + ($('mNote').textContent ? ' warn' : '');
+  $('sizeNote').textContent = state.s.size === 'half'
+    ? 'Prints at 3.2 × 2.4 in · PNG at 300 dpi'
+    : 'Prints at 6.5 × 3.25 in · PNG at 300 dpi';
+  persist();
+}
+
+function syncControls() {
+  const s = state.s;
+  $('data').value = state.text;
+  $('topN').value = s.topN; $('minPct').value = s.minPct; $('labelM').checked = s.labelM;
+  $('mOverride').value = s.mOverride; $('mStyle').value = s.mStyle;
+  $('noise').checked = s.noise; $('noiseT').value = s.noiseT;
+  $('xmin').value = s.xmin; $('xmax').value = s.xmax; $('yTitle').value = s.yTitle;
+  for (const b of $('sizeSeg').children) b.setAttribute('aria-pressed', b.dataset.v === s.size);
+  for (const b of $('textSeg').children) b.setAttribute('aria-pressed', b.dataset.v === s.text);
+}
+
+function loadData(text, keepOverrides) {
+  state.text = text;
+  const r = parse(text);
+  state.peaks = r.peaks; state.skipped = r.skipped;
+  if (!keepOverrides) state.overrides = {};
+}
+
+/* ---------- controls ---------- */
+let parseTimer;
+$('data').addEventListener('input', e => {
+  clearTimeout(parseTimer);
+  parseTimer = setTimeout(() => { state.s.mOverride = ''; $('mOverride').value = ''; loadData(e.target.value); render(); }, 200);
+});
+$('example').onclick = () => { state.s.mOverride = ''; loadData(EXAMPLE); syncControls(); render(); };
+$('clear').onclick = () => { state.s.mOverride = ''; loadData(''); syncControls(); render(); $('data').focus(); };
+
+const num = (id, key, fallback) => $(id).addEventListener('input', e => {
+  const v = parseFloat(e.target.value); state.s[key] = isFinite(v) ? v : fallback; render();
+});
+num('topN', 'topN', 0); num('minPct', 'minPct', 0); num('noiseT', 'noiseT', 0);
+for (const id of ['mOverride', 'xmin', 'xmax']) $(id).addEventListener('input', e => { state.s[id] = e.target.value; render(); });
+$('labelM').onchange = e => { state.s.labelM = e.target.checked; render(); };
+$('noise').onchange = e => { state.s.noise = e.target.checked; render(); };
+$('mStyle').onchange = e => { state.s.mStyle = e.target.value; render(); };
+$('yTitle').onchange = e => { state.s.yTitle = e.target.value; render(); };
+for (const [seg, key] of [['sizeSeg', 'size'], ['textSeg', 'text']])
+  $(seg).addEventListener('click', e => {
+    const b = e.target.closest('button'); if (!b) return;
+    state.s[key] = b.dataset.v; syncControls(); render();
+  });
+$('reset').onclick = () => { state.overrides = {}; closeEditor(); render(); toast('Labels reset to automatic picks'); };
+
+/* ---------- peak interaction ---------- */
+const sheet = $('sheet');
+let clickTimer = null;
+const peakByKey = k => state.peaks.find(p => p.key === k);
+
+function setHot(key, on) {
+  sheet.querySelectorAll(`[data-pk="${key}"], [data-lb="${key}"]`).forEach(el => el.classList.toggle('hot', on));
+}
+sheet.addEventListener('mouseover', e => {
+  const t = e.target.closest('[data-key]'); if (!t) return;
+  const p = peakByKey(t.dataset.key); if (!p) return;
+  setHot(p.key, true);
+  const on = last.isOn(p);
+  $('readout').textContent = `m/z ${fmt(p.mz)} · ${p.rel.toFixed(1)}%${last.M && last.M.key === p.key ? ' · M⁺' : ''} — click to ${on ? 'hide' : 'show'} label`;
+});
+sheet.addEventListener('mouseout', e => {
+  const t = e.target.closest('[data-key]'); if (!t) return;
+  setHot(t.dataset.key, false); $('readout').textContent = '';
+});
+sheet.addEventListener('click', e => {
+  const t = e.target.closest('[data-key]'); if (!t) return;
+  const key = t.dataset.key;
+  clearTimeout(clickTimer);
+  clickTimer = setTimeout(() => {
+    const p = peakByKey(key); if (!p) return;
+    const o = state.overrides[key] || {};
+    state.overrides[key] = { ...o, on: !last.isOn(p) };
+    closeEditor(); render(); setHot(key, true);
+  }, 230);
+});
+sheet.addEventListener('dblclick', e => {
+  const t = e.target.closest('[data-key]'); if (!t) return;
+  clearTimeout(clickTimer);
+  openEditor(t.dataset.key);
+});
+
+let editor = null;
+function closeEditor() { if (editor) { editor.remove(); editor = null; } }
+function openEditor(key) {
+  closeEditor();
+  const p = peakByKey(key); if (!p) return;
+  const o = state.overrides[key] || {};
+  const anchor = sheet.querySelector(`rect[data-key="${key}"]`) || sheet.querySelector(`[data-lb="${key}"]`);
+  const sr = $('stage').getBoundingClientRect(), ar = anchor.getBoundingClientRect();
+  editor = document.createElement('div');
+  editor.className = 'editor';
+  editor.innerHTML = `<label class="field">Label for m/z ${fmt(p.mz)}<input type="text" id="edText" value="${esc(o.text || defaultText(p, last.M))}"></label>
+    <span class="note">Type _ for subscript, ^ for superscript: [C_3H_7]^+ · Enter saves · Esc cancels · empty restores the number</span>`;
+  $('stage').appendChild(editor);
+  const left = Math.min(Math.max(8, ar.left - sr.left + ar.width / 2 - 115), sr.width - 238);
+  const top = Math.max(4, ar.top - sr.top + 6);
+  editor.style.left = left + 'px'; editor.style.top = top + 'px';
+  const inp = editor.querySelector('input');
+  inp.focus(); inp.select();
+  inp.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeEditor();
+    if (e.key === 'Enter') {
+      const v = inp.value.trim();
+      const isDefault = !v || v === defaultText(p, last.M);
+      state.overrides[key] = { ...o, on: true, text: isDefault ? undefined : v };
+      closeEditor(); render();
+    }
+  });
+}
+document.addEventListener('mousedown', e => { if (editor && !editor.contains(e.target)) closeEditor(); });
+
+/* ---------- export ---------- */
+function exportSvg() { return build(false); }
+function svgBlob() { return new Blob(['<?xml version="1.0" encoding="UTF-8"?>\n' + exportSvg().svg], { type: 'image/svg+xml' }); }
+
+const CRC = (() => { const t = new Uint32Array(256); for (let n = 0; n < 256; n++) { let c = n; for (let k = 0; k < 8; k++) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1; t[n] = c >>> 0; } return t; })();
+function crc32(b) { let c = 0xffffffff; for (let i = 0; i < b.length; i++) c = CRC[(c ^ b[i]) & 255] ^ (c >>> 8); return (c ^ 0xffffffff) >>> 0; }
+async function withDpi(blob, dpi) {
+  const buf = new Uint8Array(await blob.arrayBuffer());
+  for (let i = 8; i < buf.length - 8;) {   // skip if a pHYs chunk already exists
+    const len = new DataView(buf.buffer).getUint32(i);
+    const type = String.fromCharCode(...buf.subarray(i + 4, i + 8));
+    if (type === 'pHYs') return blob;
+    if (type === 'IDAT') break;
+    i += 12 + len;
+  }
+  const ppm = Math.round(dpi / 0.0254);
+  const ch = new Uint8Array(21), dv = new DataView(ch.buffer);
+  dv.setUint32(0, 9); ch.set([0x70, 0x48, 0x59, 0x73], 4); dv.setUint32(8, ppm); dv.setUint32(12, ppm); ch[16] = 1;
+  dv.setUint32(17, crc32(ch.subarray(4, 17)));
+  const out = new Uint8Array(buf.length + 21);
+  out.set(buf.subarray(0, 33)); out.set(ch, 33); out.set(buf.subarray(33), 54);
+  return new Blob([out], { type: 'image/png' });
+}
+function pngBlob() {
+  const { svg, W, H } = exportSvg();
+  const scale = DPI / 72;
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(new Blob([svg], { type: 'image/svg+xml' }));
+    const img = new Image();
+    img.onload = () => {
+      const c = document.createElement('canvas');
+      c.width = Math.round(W * scale); c.height = Math.round(H * scale);
+      const ctx = c.getContext('2d');
+      ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, c.width, c.height);
+      ctx.drawImage(img, 0, 0, c.width, c.height);
+      URL.revokeObjectURL(url);
+      c.toBlob(b => b ? resolve(withDpi(b, DPI)) : reject(new Error('PNG encode failed')), 'image/png');
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('Could not draw the figure')); };
+    img.src = url;
+  });
+}
+function fileBase() { const M = last && last.M; return M ? `mass-spectrum-${fmt(M.mz)}` : 'mass-spectrum'; }
+const embedded = (() => { try { return window.self !== window.top; } catch (e) { return true; } })();
+
+function showModal(blob, title, how) {
+  const url = URL.createObjectURL(blob);
+  const m = document.createElement('div');
+  m.className = 'modal';
+  m.innerHTML = `<div class="modal-card"><h2>${esc(title)}</h2><p class="note">${esc(how)}</p><img alt="Mass spectrum figure" src="${url}"><div class="row"><button class="btn primary" type="button">Done</button></div></div>`;
+  const close = () => { m.remove(); URL.revokeObjectURL(url); };
+  m.addEventListener('click', e => { if (e.target === m || e.target.closest('button')) close(); });
+  document.body.appendChild(m);
+}
+function download(blob, name, label) {
+  if (embedded) {
+    showModal(blob, 'Save the image', `This preview can't start downloads. Right-click the image and choose "Save Image As…" (it saves as ${label}).`);
+    return;
+  }
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download = name;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+  toast(`Saved ${name}`);
+}
+
+$('copy').onclick = async () => {
+  const p = pngBlob();
+  try {
+    if (!navigator.clipboard || !window.ClipboardItem) throw new Error('no clipboard');
+    await navigator.clipboard.write([new ClipboardItem({ 'image/png': p })]);
+    toast('Image copied. Paste it into your worksheet.');
+  } catch (e) {
+    try { showModal(await p, 'Copy the image', 'Copying is blocked here. Right-click the image and choose "Copy Image".'); }
+    catch (err) { toast(err.message); }
+  }
+};
+$('savePng').onclick = async () => { try { download(await pngBlob(), fileBase() + '.png', 'a 300 dpi PNG'); } catch (e) { toast(e.message); } };
+$('saveSvg').onclick = () => download(svgBlob(), fileBase() + '.svg', 'an SVG');
+
+let toastEl, toastTimer;
+function toast(msg) {
+  if (!toastEl) { toastEl = document.createElement('div'); toastEl.className = 'toast'; toastEl.setAttribute('role', 'status'); document.body.appendChild(toastEl); }
+  toastEl.textContent = msg; toastEl.hidden = false;
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => toastEl.hidden = true, 2600);
+}
+
+/* ---------- boot ---------- */
+loadData(state.text, true);
+syncControls();
+render();
+window.addEventListener('resize', closeEditor);
+</script>
